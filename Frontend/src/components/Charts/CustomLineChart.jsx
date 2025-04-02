@@ -13,6 +13,7 @@ import {
 } from 'recharts';
 
 const CustomLineChart = ({data}) => {
+  // console.log(data);
     const CustomTooltip = ({ active, payload }) => {
         if(active && payload && payload.length) {
             return (
@@ -38,14 +39,23 @@ const CustomLineChart = ({data}) => {
                     </linearGradient>
                 </defs>
                 <CartesianGrid stroke='none'/>
-                <XAxis dataKey="date" tick={{fontSize: 12, fill: "#555" }} stroke='none'/>
+                <XAxis dataKey="month" tick={{fontSize: 12, fill: "#555" }} stroke='none'/>
                 <YAxis tick={{fontSize: 12, fill: "#555" }} stroke='none'/>
                 <Tooltip content={<CustomTooltip />} />
-                <Area type={"monotone"} dataKey="amount" stroke="#875cf5" fill="url(#incomeGradient)" strokeWidth={3} dot={{r:3, fill: "#ab8df8"}} />
+                <Area type={"monotone"} dataKey="amount" stroke="#a072e3" fill="url(#colorGradient)" strokeWidth={3} dot={{r:3, fill: "#c4b5f5"}} />
             </AreaChart>
         </ResponsiveContainer>
     </div>
   )
 }
 
-export default CustomLineChart
+export default CustomLineChart;
+
+{/* <Area
+  type={"monotone"}
+  dataKey="amount"
+  stroke="#875cf5"
+  fill="url(#incomeGradient)"
+  strokeWidth={3}
+  dot={{ r: 3, fill: "#ab8df8" }}
+/>; */}

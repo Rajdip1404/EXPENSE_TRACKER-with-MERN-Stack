@@ -7,8 +7,8 @@ import Modal from "../../components/Modal";
 import DeleteAlert from "../../components/DeleteAlert";
 import ExpenseOverview from "../../components/Expense/ExpenseOverview";
 import AddExpenseForm from "../../components/Expense/AddExpenseForm";
+import ExpenseList from "../../components/Expense/ExpenseList";
 import { toast } from "react-hot-toast";
-
 
 const Expenses = () => {
   useUserAuth();
@@ -74,13 +74,33 @@ const Expenses = () => {
 
       setOpenDeleteAlert({ show: false, data: null });
       toast.success("Expense deleted successfully");
-      fetchIncomeDetails();
+      fetchExpenseDetails();
     } catch (error) {
       toast.error("Error deleting Expense");
       console.error(error);
     }
   };
-  const handleDownloadExpenseDetails = async (id) => {};
+  const handleDownloadExpenseDetails = async () => {
+    try {
+      const response = await axiosInstance.get(API_PATHS.EXPENSE.DOWNLOAD_EXPENSE_EXCEL, {
+        responseType: "blob",
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `Expense-${new Date().toLocaleDateString()}.xlsx`
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error("Error downloading expenses");
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     fetchExpenseDetails();
@@ -92,20 +112,45 @@ const Expenses = () => {
     <DashboardLayout activeMenu="Dashboard">
       <div className="my-5 mx-auto">
         <div className="grid grid-cols-1 gap-6">
-          <div >
-            <ExpenseOverview 
+          <div>
+            <ExpenseOverview
               transactions={expenseData}
               onAddExpense={() => setOpenAddExpenseModal(true)}
             />
           </div>
+
+          <ExpenseList
+            transactions={expenseData}
+            onDelete={(id) => {
+              setOpenDeleteAlert({
+                show: true,
+                data: id,
+              });
+            }}
+            onDownload={handleDownloadExpenseDetails}
+          />
         </div>
 
         <Modal
           isOpen={openAddExpenseModal}
           onClose={() => setOpenAddExpenseModal(false)}
           title="Add Expense"
-        > 
+        >
           <AddExpenseForm onAddExpense={handleAddExpense} />
+        </Modal>
+
+        <Modal
+          isOpen={openDeleteAlert.show}
+          onClose={() => setOpenDeleteAlert({ SHOW: false, data: null })}
+          title="Delete Expense"
+        >
+          <DeleteAlert
+            content="Are you sure you want to delete this expense?"
+            onDelete={() => {
+              deleteExpense(openDeleteAlert.data);
+              setOpenDeleteAlert({ SHOW: false, data: null });
+            }}
+          />
         </Modal>
       </div>
     </DashboardLayout>

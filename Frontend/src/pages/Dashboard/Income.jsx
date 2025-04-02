@@ -77,7 +77,30 @@ const Income = () => {
       console.error(error);
     }
   }
-  const handleDownloadIncomeDetails = async (id) => {}
+  const handleDownloadIncomeDetails = async () => {
+    try {
+      const response = await axiosInstance.get(
+        API_PATHS.INCOME.DOWNLOAD_INCOME_EXCEL,
+        {
+          responseType: "blob",
+        }
+      );
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `Income-${new Date().toLocaleDateString()}.xlsx`
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error("Error downloading expenses");
+      console.error(error);
+    }
+  }
   
   useEffect(() => {
     fetchIncomeDetails();
